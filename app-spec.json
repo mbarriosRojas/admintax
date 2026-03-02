@@ -1,0 +1,149 @@
+{
+  "name": "AdminTax",
+  "description": "Panel de administración completo para flota de taxis multi-ciudad",
+  "version": "1.0.0",
+  "stack": {
+    "frontend": {
+      "framework": "React 18",
+      "bundler": "Vite",
+      "language": "TypeScript",
+      "ui": "shadcn/ui + Tailwind CSS",
+      "router": "React Router v6",
+      "icons": "lucide-react"
+    },
+    "backend": {
+      "platform": "Vercel Serverless Functions",
+      "language": "TypeScript",
+      "database": "MongoDB Atlas",
+      "auth": "JWT + bcrypt"
+    }
+  },
+  "entities": [
+    {
+      "name": "City",
+      "fields": [
+        { "name": "_id", "type": "ObjectId", "required": true },
+        { "name": "name", "type": "string", "required": true },
+        { "name": "country", "type": "string", "required": true },
+        { "name": "timezone", "type": "string", "required": true },
+        { "name": "active", "type": "boolean", "default": true },
+        { "name": "createdAt", "type": "Date", "default": "now" }
+      ]
+    },
+    {
+      "name": "User",
+      "fields": [
+        { "name": "_id", "type": "ObjectId", "required": true },
+        { "name": "email", "type": "string", "required": true, "unique": true },
+        { "name": "password", "type": "string", "required": true },
+        { "name": "name", "type": "string", "required": true },
+        { "name": "role", "type": "enum", "values": ["admin", "operator"], "required": true },
+        { "name": "cityId", "type": "ObjectId", "ref": "City", "required": true },
+        { "name": "active", "type": "boolean", "default": true },
+        { "name": "createdAt", "type": "Date", "default": "now" }
+      ]
+    },
+    {
+      "name": "Vehicle",
+      "fields": [
+        { "name": "_id", "type": "ObjectId", "required": true },
+        { "name": "plate", "type": "string", "required": true, "unique": true },
+        { "name": "brand", "type": "string", "required": true },
+        { "name": "model", "type": "string", "required": true },
+        { "name": "year", "type": "number", "required": true },
+        { "name": "color", "type": "string", "required": true },
+        { "name": "cityId", "type": "ObjectId", "ref": "City", "required": true },
+        { "name": "status", "type": "enum", "values": ["active", "maintenance", "inactive"], "default": "active" },
+        { "name": "createdAt", "type": "Date", "default": "now" }
+      ]
+    },
+    {
+      "name": "Driver",
+      "fields": [
+        { "name": "_id", "type": "ObjectId", "required": true },
+        { "name": "name", "type": "string", "required": true },
+        { "name": "licenseNumber", "type": "string", "required": true, "unique": true },
+        { "name": "phone", "type": "string", "required": true },
+        { "name": "email", "type": "string", "required": false },
+        { "name": "cityId", "type": "ObjectId", "ref": "City", "required": true },
+        { "name": "vehicleId", "type": "ObjectId", "ref": "Vehicle", "required": false },
+        { "name": "status", "type": "enum", "values": ["active", "inactive"], "default": "active" },
+        { "name": "createdAt", "type": "Date", "default": "now" }
+      ]
+    },
+    {
+      "name": "Route",
+      "fields": [
+        { "name": "_id", "type": "ObjectId", "required": true },
+        { "name": "name", "type": "string", "required": true },
+        { "name": "origin", "type": "string", "required": true },
+        { "name": "destination", "type": "string", "required": true },
+        { "name": "distance", "type": "number", "required": true },
+        { "name": "estimatedTime", "type": "number", "required": true },
+        { "name": "cityId", "type": "ObjectId", "ref": "City", "required": true },
+        { "name": "active", "type": "boolean", "default": true },
+        { "name": "createdAt", "type": "Date", "default": "now" }
+      ]
+    }
+  ],
+  "modules": [
+    {
+      "name": "Dashboard",
+      "path": "/",
+      "description": "KPIs de la flota: total vehículos, choferes activos, rutas, por ciudad",
+      "kpis": [
+        "Total de vehículos por ciudad",
+        "Choferes activos",
+        "Rutas operativas",
+        "Vehículos en mantenimiento",
+        "Usuarios activos"
+      ]
+    },
+    {
+      "name": "Users",
+      "path": "/users",
+      "description": "Gestión completa de usuarios (admin/operator)",
+      "operations": ["create", "read", "update", "delete"]
+    },
+    {
+      "name": "Vehicles",
+      "path": "/vehicles",
+      "description": "Gestión de vehículos de la flota",
+      "operations": ["create", "read", "update", "delete"]
+    },
+    {
+      "name": "Drivers",
+      "path": "/drivers",
+      "description": "Gestión de choferes",
+      "operations": ["create", "read", "update", "delete"]
+    },
+    {
+      "name": "Routes",
+      "path": "/routes",
+      "description": "Gestión de rutas operativas",
+      "operations": ["create", "read", "update", "delete"]
+    },
+    {
+      "name": "Settings",
+      "path": "/settings",
+      "description": "Configuración general y gestión de ciudades",
+      "operations": ["read", "update"]
+    }
+  ],
+  "features": {
+    "authentication": true,
+    "multiCity": true,
+    "citySelector": true,
+    "roleBasedAccess": true,
+    "darkMode": false
+  },
+  "environment": {
+    "frontend": {
+      "VITE_API_URL": "/api"
+    },
+    "backend": {
+      "MONGODB_URI": "required",
+      "JWT_SECRET": "required"
+    }
+  }
+}
